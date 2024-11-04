@@ -35,11 +35,35 @@ extract_email_template = PromptTemplate(
     )
 )
 
+construct_email_template = PromptTemplate(
+    input_variables=["receiver", "subject", "body"],
+    template=(
+        "You are an AI assistant tasked with constructing a formal email on my behalf.\n"
+        "Using the following details: \n"
+        "- Receiver: {receiver}\n"
+        "- Subject: {subject}\n"
+        "- Body: {body}\n"
+        "Compose a FORMAL and professional email based on this information.\n"
+        "Ensure the email is concise, polite, and structured appropriately.\n"
+        "You MUST return in the following format or else there will be an error:\n"
+        "----------------------------------------"
+        "Subject: <title of the email>\n"
+        "----------------------------------------"
+        "Message: <the email message>\n"
+        "----------------------------------------"
+        "Comments: <any additional comments>\n"
+    )
+)
+
 def load_email_extraction_chain(llm):
     output_parser = StrOutputParser()
     return RunnableSequence(extract_email_template | llm | output_parser)
 
-def extract_email_info(user_input, chain: RunnableSequence, max_iter=10):
+def load_email_constructor_chain(llm):
+    output_parser = StrOutputParser()
+    return RunnableSequence(construct_email_template | llm | output_parser)
+
+def extract_email_info(user_input, chain: RunnableSequence, max_iter=10, email_constructor_chain=None):
     json_data = None
     i = 0
     while json_data is None and i < max_iter:
@@ -67,6 +91,19 @@ def extract_email_info(user_input, chain: RunnableSequence, max_iter=10):
         json_data["email"] = json_data["receiver"]
     json_data["subject"] = None if "NONE" in json_data["subject"] else json_data["subject"]
     json_data["body"] = None if "NONE" in json_data["body"] else json_data["body"]
+
+    if email_constructor_chain is not None and (json_data["subject"] is not None or json_data["body"] is not None):
+        updated_response = email_constructor_chain.invoke({
+            "receiver": json_data["receiver"],
+            "subject": json_data["subject"],
+            "body": json_data["body"]
+        })
+
+        try:
+            json_data["subject"] = updated_response.split("----------------------------------------")[1].replace("Subject:", "").strip()
+            json_data["body"] = updated_response.split("----------------------------------------")[2].replace("Message:", "").strip()
+        except:
+            print("Error parsing email constructor response")
 
     return json_data
 

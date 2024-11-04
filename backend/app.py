@@ -12,7 +12,7 @@ from langchain_openai import ChatOpenAI
 from langchain_core.runnables import RunnableSequence
 from langchain_core.output_parsers import StrOutputParser
 from libs.task_handler import classify_task, load_classification_chain, Task
-from libs.email_handler import send_email, find_email, load_email_extraction_chain, extract_email_info
+from libs.email_handler import send_email, find_email, extract_email_info, load_email_extraction_chain, load_email_constructor_chain
 from libs.pdf_handler import read_documents, search_documents, reload_chromadb, load_search_pdf_chain
 from libs.schedule_meeting_handler import schedule_meeting, authenticate_google_calendar
 from libs.search_internet_handler import search_internet, load_search_internet_agent
@@ -42,6 +42,7 @@ chat_memory = ConversationBufferMemory(k=5)
 # Set up the classification chain
 classification_chain = load_classification_chain(global_llm)
 email_extraction_chain = load_email_extraction_chain(local_llm)
+email_constructor_chain = load_email_constructor_chain(local_llm)
 search_pdf_chain = load_search_pdf_chain(local_llm)
 search_internet_agent = load_search_internet_agent(global_llm)
 search_private_data_chain = load_search_private_data_chain(local_llm)
@@ -112,7 +113,7 @@ def chat():
         print(f"Task: {task.name}")
         response = None
         if task == Task.SEND_EMAIL:
-            json_data = extract_email_info(user_input, email_extraction_chain)
+            json_data = extract_email_info(user_input, email_extraction_chain, email_constructor_chain= email_constructor_chain)
             if json_data["receiver"] is not None and json_data['email'] is None:
                 find_email(json_data, search_private_data_chain, get_db())
             response = json_data

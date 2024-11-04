@@ -37,16 +37,22 @@ Before running the project, ensure you have the following:
 ## Getting Started
 
 ### Backend Setup
-1. Navigate to the `backend` folder:
+1. Setup the python environment:
+   ```bash
+   conda create -n llm python=3.11
+   conda activate llm
+   pip install -r requirements.txt
+   ```
+2. Navigate to the `backend` folder:
    ```bash
    cd backend
-2. Create a `.env` file with the following content:
+3. Create a `.env` file with the following content:
     ```bash
     OPENAI_API_KEY=your_openai_api_key
     GOOGLE_CSE_ID=your_google_cse_id
     GOOGLE_API_KEY=your_google_api_key
     ```
-3. Run the server:
+4. Run the server:
     ```bash
     python app.py
     ```
