@@ -26,7 +26,8 @@ Before running the project, ensure you have the following:
      - **Google Calendar API**
      - **Custom Search API**
    - **Create** an API key and **OAuth Client ID** and complete the setup on the OAuth consent screen.
-
+   
+   After the setup, download the credentials.json and save it in the `backend/private` folder.
 3. **Expo Setup**:
    - Install Expo CLI by running:
      ```bash
