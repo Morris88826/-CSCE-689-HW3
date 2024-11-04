@@ -1,4 +1,4 @@
-# Personal AI Assistant App
+# Personal AI Assistant
 
 ## Overview
 This project is a React Native-based mobile application designed to enhance user experience by providing an intuitive interface for managing personal data and interacting with an AI assistant. The app features two main sections:
